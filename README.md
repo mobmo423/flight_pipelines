@@ -25,3 +25,25 @@ How are we going to get data flowing from source to serving? What components and
 
 ## Breakdown of tasks 
 How is your project broken down? Who is doing what?
+
+--- NOTES FROM MIKE (2023-02-02)
+
+Extract data from Flights (outbound) API for 3 airports from 2020-current_date
+Load (rds postgres) & Transform (seasonal?, monthly?, window functons
+extract (consider unit test)
+    GG/Mike
+Transform (consider unit test)
+    Marc
+    
+Pipeline:
+    All
+    
+Objective:
+To show the impact of the pandemic on outbound flights in 3 international airports and 
+compare with current situation. 
+Consumers:
+Data Analysts
+Questions:
+How many flights depart the airports within the time frames?
+which of the 3 airports had the worst impact?
+Datasets:
