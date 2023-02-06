@@ -4,20 +4,38 @@
 
 # Project plan 
 
-## Objective 
-A short statement about the objective of your project 
+## Objective  
+We will compare the flights statistics of three representative airports (Washington DC, Krakow, Tenerife) for some current dates. Comepetition between airports. 
 
 ## Consumers 
-What users would find your data useful? How do they want to access the data? 
+A data analyst will compare the flight statistics by creating a dashboard for executive management.
 
 ## Questions 
-What questions are you trying to answer with your data? How will your data support your users?
+Does the percentage of delayed flights (together for arrivals and departures) differ between our three airports? Which airport is the most reliable?
 
-## Source datasets 
-What datasets are you sourcing from? How frequently are the source datasets updating?
+## Source datasets
+The flight statistics are sourced from an live flight tracking API on a daily basis (every 24h).
 
 ## Solution architecture
 How are we going to get data flowing from source to serving? What components and services will we combine to implement the solution? How do we automate the entire running of the solution? 
+
+EXTRACT
+- one table per request (colums? ids of aiport? format?)
+- put it in format
+- log data?
+
+LOAD
+- to database
+- incremental (appending data)
+- in addition: we save a parquet file named by the date of the API request
+- log data? 
+
+TRANSFORM
+- source data from data base
+- renaming 
+- bronze/silver/gold
+- group-by airport
+- avr number of flights delayed for arrivals and departures?
 
 - What data extraction patterns are you going to be using? 
 - What data loading patterns are you going to be using? 
@@ -28,7 +46,6 @@ How is your project broken down? Who is doing what?
 
 --- NOTES FROM MIKE (2023-02-02)
 
-Extract data from Flights (outbound) API for 3 airports from 2020-current_date
 
 Load (rds postgres) & Transform (seasonal?, monthly?, window functons
 
