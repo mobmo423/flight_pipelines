@@ -1,6 +1,6 @@
 from database.postgres import PostgresDB
 from pipeline.extract_load_pipeline import ExtractLoad
-from flights.etl.transform.transform import Transform
+from flights.etl.transform import Transform
 import logging
 from graphlib import TopologicalSorter
 

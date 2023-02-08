@@ -1,5 +1,5 @@
-from flights.etl.transform.extract import Extract
-from flights.etl.transform.load import Load
+from flights.etl.transform import Extract
+from flights.etl.transform import Load
 
 
 class ExtractLoad():
