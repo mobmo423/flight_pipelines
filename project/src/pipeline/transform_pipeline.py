@@ -2,6 +2,7 @@ from database.postgres import PostgresDB
 from pipeline.extract_load_pipeline import ExtractLoad
 from flights.etl.transform import Transform
 import logging
+import os
 from data_quality_test.test_load import TestLoad 
 from graphlib import TopologicalSorter
 
@@ -19,17 +20,21 @@ def run_pipeline():
     logging.info('successfully connecting to target databases')
 
     dag = TopologicalSorter()
+    nodes_extract_load = []
     logging.info("Creating extract and load nodes")
-    node_extract_load = ExtractLoad(source_engine=source_engine,target_engine=target_engine,table_name='flight_data',path=path_extract_model)
-    dag.add(node_extract_load)
+    for table_name in os.listdir(path_extract_model):
+        table_name = table_name.replace('.sql','')
+        node_extract_load = ExtractLoad(source_engine=source_engine,target_engine=target_engine,table_name=table_name,path=path_extract_model)
+        nodes_extract_load.append(node_extract_load)
+        dag.add(node_extract_load)
     
-    data_quality_test = TestLoad(date = '2023-02-06',table_name='flight_data',engine = source_engine,num_record=4)
+    data_quality_test = TestLoad(date = '2023-02-06',table_name='flight_data',engine = source_engine,num_record=3) # number of airport you expect your api to retreive for a particular day 
     dag.add(data_quality_test,node_extract_load)
     logging.info("Creating Transform and load nodes")
     node_staging_flight = Transform(table_name='staging_flights',engine=target_engine,models_path=path_transform_model)
     #node_serving_films_popular = Transform(...)
 
-    dag.add(node_staging_flight,node_extract_load)
+    dag.add(node_staging_flight,*nodes_extract_load)
     # dag.add(...,node_extract_load)
     # dag.add(...,node_extract_load)
     
