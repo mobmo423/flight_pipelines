@@ -64,7 +64,7 @@ class Transform:
                 raw_sql = f.read()
             parsed_sql = j2.Template(raw_sql).render(target_table = self.table_name, engine=self.engine)
             result = self.engine.execute(parsed_sql)
-            logging.info(f'Successfully built modekl {self.table_name}, rows: {result.rowcount} ')
+            logging.info(f'Successfully built model {self.table_name}, rows: {result.rowcount}')
             return True
         else:
             logging.error(f'could not find {self.table_name} in {self.models_path}')
