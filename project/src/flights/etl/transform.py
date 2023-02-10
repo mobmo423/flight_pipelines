@@ -8,47 +8,6 @@ from sqlalchemy import Integer, String, Float, JSON , DateTime, Boolean, BigInte
 from sqlalchemy import Table, Column, Integer, String, MetaData, Float, JSON 
 
 
-def get_key_columns(table:str, path:str="extract_queries")->list: 
-    """
-    get a list of key columns from the .sql file. key_columns have to be expressed as `{% set key_columns = ["keyA", "keyB"]%}` in the .sql file. 
-    - `table`: name of the sql file without .sql 
-    - `path`: path to the sql file 
-    """
-    # read sql contents into a variable 
-    with open(f"{path}/{table}.sql") as f: 
-        raw_sql = f.read()
-    try: 
-        key_columns = j2.Template(raw_sql).make_module().config["key_columns"] # get key columns 
-        return key_columns
-    except:
-        return []
-
-from sqlalchemy import Integer, String, Float, JSON , DateTime, Boolean, BigInteger, Numeric
-
-
-def get_sqlalchemy_column(column_name:str , source_datatype:str, primary_key:bool=False)->Column:
-    """
-    A helper function that returns a SQLAlchemy column by mapping a pandas dataframe datatypes to sqlalchemy datatypes 
-    """
-    dtype_map = {
-        "int64": BigInteger, 
-        "object": String, 
-        "datetime64[ns]": DateTime, 
-        "float64": Numeric,
-        "bool": Boolean
-    }
-    column = Column(column_name, dtype_map[source_datatype], primary_key=primary_key) 
-    return column
-
-def generate_sqlalchemy_schema(df: pd.DataFrame, key_columns:list, table_name, meta): 
-    """
-    Generates a sqlalchemy table schema that shall be used to create the target table and perform insert/upserts. 
-    """
-    schema = []
-    for column in [{"column_name": col[0], "source_datatype": col[1]} for col in zip(df.columns, [dtype.name for dtype in df.dtypes])]:
-        schema.append(get_sqlalchemy_column(**column, primary_key=column["column_name"] in key_columns))
-    return Table(table_name, meta, *schema)
-
 
 def get_incremental_value(table_name, path="extract_log"):
     df = pd.read_csv(f"{path}/{table_name}.csv")
