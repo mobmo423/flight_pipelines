@@ -65,13 +65,12 @@ class Load():
             # Initialize the dataframe for combining all csv-data
             df_all = pd.DataFrame()
             # Gathering all csv-data from all files in one data frame (df_all)
-            print(csv_files)
             for y in csv_files:
-                df_all = pd.concat([df_all, pd.read_csv(y)],axis=0)
+                df_all = pd.concat([df_all, pd.read_csv("data/"+ y)],axis=0)
             # Create and save a new log_history file to reflect the latest processing
             log_tmp = pd.DataFrame()
             log_tmp["Update_Date"] = [dt.datetime.strftime(history_date_list[0], "%Y-%m-%d")]
-            log_tmp.to_csv("log_history.csv", index=False)
+            log_tmp.to_csv("data/log_history.csv", index=False)
             # Define the concatinated df that will be handed over to the load-statement
             df = df_all
             # Load data to database    
