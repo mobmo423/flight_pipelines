@@ -3,6 +3,7 @@ from flights.pipeline.extract_load_pipeline import ExtractLoad
 from flights.etl.transform import Transform
 import logging
 import os
+import yaml
 from data_quality_test.test_load import TestLoad 
 from graphlib import TopologicalSorter
 
@@ -10,9 +11,10 @@ from graphlib import TopologicalSorter
 def run_pipeline():
     logging.basicConfig(level=logging.INFO)
     
-    # add config
-    path_extract_model = 'models/extract/'
-    path_transform_model = 'models/transform/'
+    with open("flights/config.yaml") as stream:
+        config = yaml.safe_load(stream)
+    path_extract_model = config['transform']['path_extract_model']
+    path_transform_model = config['transform']['path_transform_model']
 
     logging.info('connecting to sources and target databases')
     source_engine = PostgresDB.create_pg_engine(kind='source')
@@ -29,13 +31,13 @@ def run_pipeline():
         nodes_extract_load.append(node_extract_load)
         dag.add(node_extract_load)
     
-    # add config 
-    data_quality_test = TestLoad(date = '2023-02-06',table_name='flight_data',engine = source_engine,num_record=3) # number of airport you expect your api to retreive for a particular day 
+    # replace date by today date 
+    data_quality_test = TestLoad(date = '2023-02-06',table_name=config['transform']['raw_table'],engine = source_engine,num_record=config['data_quality_test']['num_record']) # number of airport you expect your api to retreive for a particular day 
     dag.add(data_quality_test,node_extract_load)
     logging.info("Creating Transform and load nodes")
 
     # add config
-    node_staging_flight = Transform(table_name='staging_flights',engine=target_engine,models_path=path_transform_model)
+    node_staging_flight = Transform(table_name=config['transform']['staging_table'],engine=target_engine,models_path=path_transform_model)
     #node_serving_films_popular = Transform(...)
 
     dag.add(node_staging_flight,*nodes_extract_load)
