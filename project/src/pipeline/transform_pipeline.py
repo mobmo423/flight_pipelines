@@ -10,6 +10,7 @@ from graphlib import TopologicalSorter
 def run_pipeline():
     logging.basicConfig(level=logging.INFO)
     
+    # add config
     path_extract_model = 'models/extract/'
     path_transform_model = 'models/transform/'
 
@@ -28,9 +29,12 @@ def run_pipeline():
         nodes_extract_load.append(node_extract_load)
         dag.add(node_extract_load)
     
+    # add config 
     data_quality_test = TestLoad(date = '2023-02-06',table_name='flight_data',engine = source_engine,num_record=3) # number of airport you expect your api to retreive for a particular day 
     dag.add(data_quality_test,node_extract_load)
     logging.info("Creating Transform and load nodes")
+
+    # add config
     node_staging_flight = Transform(table_name='staging_flights',engine=target_engine,models_path=path_transform_model)
     #node_serving_films_popular = Transform(...)
 

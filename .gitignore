@@ -1,3 +1,6 @@
+# log of tranform
+extract_log/
+
 # data files 
 *.parquet
 *.ndjson
