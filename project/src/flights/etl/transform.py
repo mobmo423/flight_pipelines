@@ -133,7 +133,15 @@ class Transform:
             logging.error(f'could not find {self.table_name} in {self.models_path}')
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    source_engine = PostgresDB.create_pg_engine()
+    target_engine = PostgresDB.create_pg_engine(kind='target')
+    # df = Extract.extract_airport_list("data/airports.csv")
+    # Load.load(df,engine=source_engine)
+    df = Extract.extract_from_database(table_name='flight_data',engine = source_engine,path='models/extract/')
+    Load.overwrite_to_database(df,table_name='flight_data',engine = target_engine)
+    
 #     source_engine = PostgresDB.create_pg_engine()
 #     target_engine = PostgresDB.create_pg_engine(kind='target')
 #     logging.basicConfig(level=logging.INFO)

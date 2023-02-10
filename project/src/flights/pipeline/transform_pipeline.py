@@ -1,5 +1,5 @@
 from database.postgres import PostgresDB
-from pipeline.extract_load_pipeline import ExtractLoad
+from flights.pipeline.extract_load_pipeline import ExtractLoad
 from flights.etl.transform import Transform
 import logging
 import os
