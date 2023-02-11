@@ -8,6 +8,7 @@ from io import StringIO
 import datetime as dt 
 from data_quality_test.test_load import TestLoad 
 from utility.metadata_logging import MetadataLogging
+from utility.alert import Alert
 from graphlib import TopologicalSorter
 
 
@@ -90,6 +91,10 @@ def run_pipeline():
         )
 
     print(run_log.getvalue())
- 
+    
+    if Alert.has_failed(target_engine=target_engine,log_table=metadata_log_table):
+        Alert.connect_send(target_engine=target_engine,log = run_log.getvalue())
+        print('Email sent successfully')
+    
 if __name__ == "__main__":
     run_pipeline()
