@@ -1,6 +1,6 @@
 from flights.pipeline.transform_pipeline import run_pipeline
 from flights.etl.extract import Extract
-from flights.etl.load1 import Load
+from flights.etl.load import Load
 from database.postgres import PostgresDB
 
 def run():
