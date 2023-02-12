@@ -50,10 +50,10 @@ How is your project broken down? Who is doing what?
 Load (rds postgres) & Transform (seasonal?, monthly?, window functons
 
 extract (consider unit test)
-    GG/Mike
+    As AWS offer a free tier, storing the data shouldn't cost you anything unless you amend the pipeline to extract large amounts of data
 
 Transform (consider unit test)
-    Marc
+    My transfrom is actually another pipeline of it's own, the goal is load data from database to another and then perform the transformation their.
     
 Pipeline:
     All
