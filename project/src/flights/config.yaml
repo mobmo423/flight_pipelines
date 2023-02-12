@@ -1,0 +1,11 @@
+transform: 
+  path_extract_model: "flights/models/extract/"
+  path_transform_model: "flights/models/transform/"
+  raw_table : "flight_data"
+  staging_table: "staging_flights"
+meta: 
+  log_table: "transform_pipeline_logs"
+
+data_quality_test:
+  num_record: 3
+

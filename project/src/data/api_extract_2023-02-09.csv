@@ -1,0 +1,4 @@
+pull_date,airport_code,departures_onTime,departures_delayed,departures_canceled,arrivals_onTime,arrivals_delayed,arrivals_canceled
+2023-02-09,TFS,63,41,0,91,13,0
+2023-02-09,IAD,229,176,0,321,59,3
+2023-02-09,WAW,83,99,0,154,24,2

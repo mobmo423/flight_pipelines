@@ -6,73 +6,45 @@ import datetime as dt
 from database.postgres import PostgresDB
 from sqlalchemy import Integer, String, Float, JSON , DateTime, Boolean, BigInteger, Numeric
 from sqlalchemy import Table, Column, Integer, String, MetaData, Float, JSON 
+from utility.incremental_logging import IncrementalLogging
 
-
-def get_key_columns(table:str, path:str="extract_queries")->list: 
-    """
-    get a list of key columns from the .sql file. key_columns have to be expressed as `{% set key_columns = ["keyA", "keyB"]%}` in the .sql file. 
-    - `table`: name of the sql file without .sql 
-    - `path`: path to the sql file 
-    """
-    # read sql contents into a variable 
-    with open(f"{path}/{table}.sql") as f: 
-        raw_sql = f.read()
-    try: 
-        key_columns = j2.Template(raw_sql).make_module().config["key_columns"] # get key columns 
-        return key_columns
-    except:
-        return []
-
-from sqlalchemy import Integer, String, Float, JSON , DateTime, Boolean, BigInteger, Numeric
-
-
-def get_sqlalchemy_column(column_name:str , source_datatype:str, primary_key:bool=False)->Column:
-    """
-    A helper function that returns a SQLAlchemy column by mapping a pandas dataframe datatypes to sqlalchemy datatypes 
-    """
-    dtype_map = {
-        "int64": BigInteger, 
-        "object": String, 
-        "datetime64[ns]": DateTime, 
-        "float64": Numeric,
-        "bool": Boolean
-    }
-    column = Column(column_name, dtype_map[source_datatype], primary_key=primary_key) 
-    return column
-
-def generate_sqlalchemy_schema(df: pd.DataFrame, key_columns:list, table_name, meta): 
-    """
-    Generates a sqlalchemy table schema that shall be used to create the target table and perform insert/upserts. 
-    """
-    schema = []
-    for column in [{"column_name": col[0], "source_datatype": col[1]} for col in zip(df.columns, [dtype.name for dtype in df.dtypes])]:
-        schema.append(get_sqlalchemy_column(**column, primary_key=column["column_name"] in key_columns))
-    return Table(table_name, meta, *schema)
-
-
-def get_incremental_value(table_name, path="extract_log"):
-    df = pd.read_csv(f"{path}/{table_name}.csv")
-    return df[df["log_date"] == df["log_date"].max()]["incremental_value"].values[0]
-
-def upsert_incremental_log(log_path, table_name, incremental_value)->bool:
-    if f"{table_name}.csv" in os.listdir(log_path):
-        df_existing_incremental_log = pd.read_csv(f"{log_path}/{table_name}.csv")
-        df_incremental_log = pd.DataFrame(data={
-            "log_date": [dt.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")], 
-            "incremental_value": [incremental_value]
-        })
-        df_updated_incremental_log = pd.concat([df_existing_incremental_log,df_incremental_log])
-        df_updated_incremental_log.to_csv(f"{log_path}/{table_name}.csv", index=False)
-    else: 
-        df_incremental_log = pd.DataFrame(data={
-            "log_date": [dt.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")], 
-            "incremental_value": [incremental_value]
-        })
-        df_incremental_log.to_csv(f"{log_path}/{table_name}.csv", index=False)
-    return True 
 
 
 class Extract():
+
+    @staticmethod
+    def get_incremental_value(table_name, path="extract_log"):
+        df = pd.read_csv(f"{path}/{table_name}.csv")
+        return df[df["log_date"] == df["log_date"].max()]["incremental_value"].values[0]
+
+    @staticmethod
+    def upsert_incremental_log(log_path, table_name, incremental_value)->bool:
+        if f"{table_name}.csv" in os.listdir(log_path):
+            df_existing_incremental_log = pd.read_csv(f"{log_path}/{table_name}.csv")
+            df_incremental_log = pd.DataFrame(data={
+                "log_date": [dt.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")], 
+                "incremental_value": [incremental_value]
+            })
+            df_updated_incremental_log = pd.concat([df_existing_incremental_log,df_incremental_log])
+            df_updated_incremental_log.to_csv(f"{log_path}/{table_name}.csv", index=False)
+        else: 
+            df_incremental_log = pd.DataFrame(data={
+                "log_date": [dt.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")], 
+                "incremental_value": [incremental_value]
+            })
+            df_incremental_log.to_csv(f"{log_path}/{table_name}.csv", index=False)
+        return True 
+
+    @staticmethod
+    def is_incremental(table:str, path:str)->bool:
+        # read sql contents into a variable 
+        with open(f"{path}/{table}.sql") as f: 
+            raw_sql = f.read()
+        try: 
+            config = j2.Template(raw_sql).make_module().config 
+            return config["extract_type"].lower() == "incremental"
+        except:
+            return False
 
     @staticmethod
     def extract_from_database(table_name, engine, path)->pd.DataFrame:
@@ -84,13 +56,11 @@ class Extract():
             # read the config
             config = j2.Template(raw_sql).make_module().config 
 
-            if config['extract_type'].lower() == 'incremental':
-                incremental_path = 'extract_log'
-                if not os.path.exists(incremental_path):
-                    os.mkdir(incremental_path)
+            if Extract.is_incremental(table=table_name, path=path): 
+                incremental_logger = IncrementalLogging(kind="target")
+                current_max_incremental_value = incremental_logger.get_latest_incremental_value(db_table=f"incremental_log_{table_name}")
                 # check if there's a csv file
-                if f'{table_name}.csv' in os.listdir(incremental_path):
-                    current_max_incremental_value = get_incremental_value(table_name, path=incremental_path)
+                if current_max_incremental_value is not None:
                     parsed_sql = j2.Template(raw_sql).render(source_table = table_name, engine=engine, is_incremental=True, incremental_value=current_max_incremental_value)
                     # execute incremental extract
                     df = pd.read_sql(sql=parsed_sql, con=engine)
@@ -99,7 +69,7 @@ class Extract():
                         max_incremental_value = df[config["incremental_column"]].max()
                     else: 
                         max_incremental_value = current_max_incremental_value
-                    upsert_incremental_log(log_path=incremental_path, table_name=table_name, incremental_value=max_incremental_value)
+                    incremental_logger.log(run_timestamp=dt.datetime.now(),incremental_value=max_incremental_value, db_table=f"incremental_log_{table_name}")
                     logging.info(f"Successfully extracted table: {table_name}, rows extracted: {len(df)}")
                     return df 
                 else: 
@@ -109,7 +79,7 @@ class Extract():
                     df = pd.read_sql(sql=parsed_sql, con=engine)
                     # store latest incremental value 
                     max_incremental_value = df[config["incremental_column"]].max()
-                    upsert_incremental_log(log_path=incremental_path, table_name=table_name, incremental_value=max_incremental_value)
+                    incremental_logger.log(run_timestamp=dt.datetime.now(),incremental_value=max_incremental_value, db_table=f"incremental_log_{table_name}")
                     logging.info(f"Successfully extracted table: {table_name}, rows extracted: {len(df)}")
                     return df 
 
@@ -174,11 +144,11 @@ class Transform:
             logging.error(f'could not find {self.table_name} in {self.models_path}')
 
 
-# if __name__ == '__main__':
-#     source_engine = PostgresDB.create_pg_engine()
-#     target_engine = PostgresDB.create_pg_engine(kind='target')
-#     logging.basicConfig(level=logging.INFO)
-#     df = Extract.extract_from_database(table_name='flight_data',engine = source_engine,path='models/extract/')
-#     Load.overwrite_to_database(df,table_name='flight_data',engine = target_engine)
-    
-    
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    source_engine = PostgresDB.create_pg_engine()
+    target_engine = PostgresDB.create_pg_engine(kind='target')
+    df = Extract.extract_from_database(table_name='flight_data',engine = source_engine,path='flights/models/extract/')
+    Load.overwrite_to_database(df,table_name='flight_data',engine = target_engine)
+    transform = Transform(table_name='staging_flights',engine=target_engine,models_path='flights/models/transform/')
+    transform.run()
