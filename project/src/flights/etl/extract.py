@@ -63,5 +63,5 @@ class Extract():
         return df_concat.reset_index().drop(labels=["index"], axis=1)
     
 if __name__ == '__main__':
-    Extract.extract_airport_list("data/airports.csv")
+    df = Extract.extract_airport_list("data/airports.csv")
     print("success")
