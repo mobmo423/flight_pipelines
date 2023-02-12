@@ -47,7 +47,8 @@ class Load():
         # In case the latest csv-file matches the date of the log-file all history data are 
         # already loaded in the database. 
         # In case the dates of both don't match all available csv-files will be loaded 
-        # into the database together.
+        # into the database together + the current data from the current API request. 
+        # In this case there is no need to run the load-function in the beginning twice. 
         
         # read the log of the latest history-update and convert string to date
         log_history = pd.read_csv("data/log_history.csv")
@@ -61,24 +62,30 @@ class Load():
             set_={c.key: c for c in insert_statement.excluded if c.key not in ['pull_date', 'airport_code']})
             engine.execute(upsert_statement)
         else:
-            print("New history csv-files detected. Proceeding with gathering all data from csv-files!")
+            print("New history csv-files detected. Proceeding with gathering all data from csv-files + the current API request!")
             # Initialize the dataframe for combining all csv-data
             df_all = pd.DataFrame()
             # Gathering all csv-data from all files in one data frame (df_all)
             for y in csv_files:
                 df_all = pd.concat([df_all, pd.read_csv("data/"+ y)],axis=0)
-            # Create and save a new log_history file to reflect the latest processing
-            log_tmp = pd.DataFrame()
-            log_tmp["Update_Date"] = [dt.datetime.strftime(history_date_list[0], "%Y-%m-%d")]
-            log_tmp.to_csv("data/log_history.csv", index=False)
-            # Define the concatinated df that will be handed over to the load-statement
-            df = df_all
+            
+            # Define the concatinated df that will be handed over to the load-statement:
+            # Combine all the csv-data with the current results of the API request
+            print(df)
+            df_all = pd.concat([df_all, df],axis=0)
+            #df = df_all #pd.concat([df_all,df], axis=0)
+            
             # Load data to database    
             insert_statement = postgresql.insert(flights_table).values(df.to_dict(orient='records'))
             upsert_statement = insert_statement.on_conflict_do_update(
             index_elements=['pull_date', 'airport_code'],
             set_={c.key: c for c in insert_statement.excluded if c.key not in ['pull_date', 'airport_code']})
             engine.execute(upsert_statement)
+            
+            # Create and save a new log_history file to reflect the latest processing
+            log_tmp = pd.DataFrame()
+            log_tmp["Update_Date"] = [dt.datetime.strftime(history_date_list[0], "%Y-%m-%d")]
+            log_tmp.to_csv("data/log_history.csv", index=False)
 
 if __name__=='__main__':
     engine = PostgresDB.create_pg_engine()
