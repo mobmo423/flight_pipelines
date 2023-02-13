@@ -51,8 +51,7 @@ def run_pipeline():
             dag.add(node_extract_load)
         
         # replace date by today date 
-        #today = str(dt.date.today())
-        today = '2023-02-12'
+        today = str(dt.date.today())
         data_quality_test = TestLoad(date = today,table_name=config['transform']['raw_table'],engine = source_engine,num_record=config['data_quality_test']['num_record']) # number of airport you expect your api to retreive for a particular day 
         dag.add(data_quality_test,node_extract_load)
         logging.info("Creating Transform and load nodes")
