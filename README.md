@@ -1,4 +1,4 @@
-![Excalidraw Image](Untitled-2023-02-13-0758.excalidraw)
+![Excalidraw Image](images/Untitled-2023-02-13-0758.png)
 
 # flight_pipelines
 
