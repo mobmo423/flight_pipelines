@@ -40,6 +40,6 @@ class Load():
 if __name__=='__main__':
     engine = PostgresDB.create_pg_engine()
     # df = Extract() --read from gernot
-    df = pd.read_csv('data/api_extract_2023-02-06.csv') #  api for today
+    df = pd.read_csv('data/api_extract_2023-02-06.csv')
     Load.load(df,engine=engine)
     # transform
