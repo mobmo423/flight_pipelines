@@ -51,7 +51,8 @@ def run_pipeline():
             dag.add(node_extract_load)
         
         # replace date by today date 
-        today = str(dt.date.today())
+        #today = str(dt.date.today())
+        today = '2023-02-12'
         data_quality_test = TestLoad(date = today,table_name=config['transform']['raw_table'],engine = source_engine,num_record=config['data_quality_test']['num_record']) # number of airport you expect your api to retreive for a particular day 
         dag.add(data_quality_test,node_extract_load)
         logging.info("Creating Transform and load nodes")
@@ -90,12 +91,9 @@ def run_pipeline():
             run_log=run_log.getvalue(),
             db_table=metadata_log_table
         )
+        Alert.connect_send(target_engine=target_engine,log = run_log.getvalue())
 
     print(run_log.getvalue())
-    
-    if Alert.has_failed(target_engine=target_engine,log_table=metadata_log_table):
-        Alert.connect_send(target_engine=target_engine,log = run_log.getvalue())
-        print('Email sent successfully')
     
 if __name__ == "__main__":
     run_pipeline()

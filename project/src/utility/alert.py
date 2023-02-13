@@ -8,11 +8,18 @@ class Alert():
         '''
         this function will check from the log database if the function has failed
         '''
-        sql_query = f'SELECT run_status  FROM {log_table} ORDER BY run_timestamp desc LIMIT 1 '
+        sql_query = f'''
+                    SELECT 
+                        run_status  
+                    FROM {log_table} 
+                    ORDER BY run_timestamp desc
+                    LIMIT 1 
+                '''
         result = target_engine.execute(sql_query).fetchone()[0]
         if result !='completed': # test has failed
             return True
         return False 
+
     @staticmethod
     def connect_send(target_engine:object,log:str)->None:
         '''

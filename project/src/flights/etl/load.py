@@ -71,10 +71,10 @@ class Load():
             
             # Define the concatinated df that will be handed over to the load-statement:
             # Combine all the csv-data with the current results of the API request
-            print(df)
-            df_all = pd.concat([df_all, df],axis=0)
+            #print(df)
+            #df_all = pd.concat([df_all, df],axis=0)
             #df = df_all #pd.concat([df_all,df], axis=0)
-            
+            df = df_all.copy()
             # Load data to database    
             insert_statement = postgresql.insert(flights_table).values(df.to_dict(orient='records'))
             upsert_statement = insert_statement.on_conflict_do_update(
