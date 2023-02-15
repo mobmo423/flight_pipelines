@@ -73,4 +73,5 @@ First clone the repository into your home directory and follow the steps.
 make sure to follow config.template guide 
 
 git clone https://github.com/mobmo423/flight_pipelines.git
+
 python flights/pipeline/pipeline.py
