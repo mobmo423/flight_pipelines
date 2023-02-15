@@ -42,15 +42,12 @@ The data flow is organized based on the three main steps of Extract-Load-Transfo
 
 #### TRANSFORM
 
-@Marc: please review the following section
-
 - source data from data base
-- renaming
-- bronze/silver/gold
+- renaming (lowercase column name ) 
+- raw/staging/serving
 - group-by airport
 - avr number of flights delayed for arrivals and departures?
-- What data extraction patterns are you going to be using?
-- What data loading patterns are you going to be using?
+- incremental load to target database
 - What data transformation patterns are you going to be performing?
 
 #### Cloud-based Solution
