@@ -70,8 +70,10 @@ NOTE: This was developed using an Windows PC. If you're on Mac or Linux, you may
 As AWS offer a free tier, this shouldn't cost you anything unless you amend the pipeline to extract large amounts of data. please check AWS free tier limits, as this may change.
 
 First clone the repository into your home directory and follow the steps.
-make sure to follow config.template guide 
+Make sure to follow config.template guide 
 
+```python
 git clone https://github.com/mobmo423/flight_pipelines.git
-
+cd project/src
 python flights/pipeline/pipeline.py
+```
