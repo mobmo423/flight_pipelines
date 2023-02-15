@@ -60,3 +60,17 @@ data analyst should be able to find:
 + ECS: creating a cluster running a EC2 instance
 
 +  Define a scheduled task to request API data every 24h
+
+## Setup
+
+Follow below steps to setup pipeline.Feel free to make improvements/changes.
+
+NOTE: This was developed using an Windows PC. If you're on Mac or Linux, you may need to amend certain components if issues are encountered.
+
+As AWS offer a free tier, this shouldn't cost you anything unless you amend the pipeline to extract large amounts of data. please check AWS free tier limits, as this may change.
+
+First clone the repository into your home directory and follow the steps.
+make sure to follow config.template guide 
+
+git clone https://github.com/mobmo423/flight_pipelines.git
+python flights/pipeline/pipeline.py
