@@ -42,13 +42,14 @@ The data flow is organized based on the three main steps of Extract-Load-Transfo
 
 #### TRANSFORM
 
-- source data from data base
-- renaming (lowercase column name ) 
+End consumer is data analyst:
+- Load data from source to target database (  incremental load _
+- renaming  column
+- data quality test
+- lowercase column name
 - raw/staging/serving
-- group-by airport
+data analyst should be able to find: 
 - avr number of flights delayed for arrivals and departures?
-- incremental load to target database
-- What data transformation patterns are you going to be performing?
 
 #### Cloud-based Solution
 
