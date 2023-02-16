@@ -49,7 +49,7 @@ End consumer is data analyst:
 - lowercase column name
 - raw/staging/serving
 data analyst should be able to find: 
-- avr number of flights delayed for arrivals and departures?
+- avr number of flights delayed for arrivals and departures.
 
 #### Cloud-based Solution
 
