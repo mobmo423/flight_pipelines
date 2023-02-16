@@ -63,7 +63,7 @@ data analyst should be able to find:
 
 ## Setup
 
-Follow below steps to setup pipeline.Feel free to make improvements/changes.
+Follow below steps to setup pipeline. Feel free to make improvements/changes.
 
 NOTE: This was developed using an Windows PC. If you're on Mac or Linux, you may need to amend certain components if issues are encountered.
 
