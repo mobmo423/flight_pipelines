@@ -10,6 +10,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.schema import CreateTable
 from flights.etl.extract import Extract
 
+
 class Load():
 
     @staticmethod

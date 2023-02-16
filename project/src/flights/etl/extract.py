@@ -58,10 +58,12 @@ class Extract():
         for airport_code in df_airports["airport_code"]:
             df_extracted = Extract.extract_airport(airport_code=airport_code)
             df_concat = pd.concat([df_concat,df_extracted])
-        # re-order columns: col1 = pull-date, col2= airport-code    
-        df_concat = df_concat.iloc[:, [7, 6, 1, 2, 3, 4, 5]]
+        # re-order columns: col1 = pull-date, col2= airport-code
+        print(df_concat)    
+        df_concat = df_concat.iloc[:, [7, 6, 0, 1, 2, 3, 4, 5]]
         return df_concat.reset_index().drop(labels=["index"], axis=1)
     
 if __name__ == '__main__':
     df = Extract.extract_airport_list("data/airports.csv")
+    print(df)
     print("success")
